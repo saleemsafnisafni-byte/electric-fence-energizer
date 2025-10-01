@@ -100,3 +100,9 @@ Developed using Arduino IDE / Atmega328P C code.
 Handles pulse generation and alarm monitoring.
 
 Configurable pulse frequency and duration in code.
+
+
+Demo Video
+
+Watch the project in action on YouTube:
+https://youtube.com/shorts/9oRb7KBpmlI?feature=share, @SafniSaleemsafni
