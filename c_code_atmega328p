@@ -1,0 +1,86 @@
+// Pin Definitions
+const int voltagePin = A0;   // DC voltage input
+const int output1 = 7;       // Alarm output 1
+const int output2 = 8;       // Alarm output 2
+const int pwmA = 9;          // MOSFET pair 1
+const int pwmB = 10;          // MOSFET pair 2
+const int transPin =13;      // Transistor pin
+
+// Timing
+unsigned long lastCheck = 0;
+unsigned long blinkTimer1 = 0;
+unsigned long blinkTimer2 = 0;
+unsigned long prevTrans = 0;
+bool state1 = LOW;
+bool state2 = LOW;
+bool transState = LOW;
+
+unsigned long below1VStart = 0; 
+bool below1V = false;
+
+void setup() {
+  pinMode(output1, OUTPUT);
+  pinMode(output2, OUTPUT);
+  pinMode(pwmA, OUTPUT);
+  pinMode(pwmB, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  unsigned long now = millis();
+
+  // --- Voltage Reading ---
+  int sensorValue = analogRead(voltagePin);
+  float voltage = sensorValue * (6.0 / 1023.0);  // scale for 6V input
+  Serial.print("Voltage: ");
+  Serial.println(voltage);
+
+  // --- Alarm Output1 (Immediate blink if <2V) ---
+  if (voltage < 1.0) {
+    if (now - blinkTimer1 >= 300) {  // 500ms toggle
+      state1 = !state1;
+      digitalWrite(output1, state1);
+      blinkTimer1 = now;
+    }
+  } else {
+    digitalWrite(output1, LOW);
+    state1 = LOW;
+  }
+
+  // --- Track continuous time below 2V ---
+  if (voltage < 1.0) {
+    if (!below1V) {
+      below1V = true;
+      below1VStart = now;
+    }
+  } else {
+    below1V = false;
+    digitalWrite(output2, LOW);
+    state2 = LOW;
+  }
+
+  // --- Alarm Output2 (Blink after 7s continuous <2V) ---
+  if (below1V && (now - below1VStart >= 3000)) {
+    if (now - blinkTimer2 >= 500) {  // 500ms toggle
+      state2 = !state2;
+      digitalWrite(output2, state2);
+      blinkTimer2 = now;
+    }
+  }
+
+  // --- Inverter MOSFET Switching (simple square wave) ---
+  // Alternate pwmA & pwmB every 10ms (50Hz approx if using delay=10ms)
+  digitalWrite(pwmA, HIGH);
+  digitalWrite(pwmB, LOW);
+  delay(10);
+  digitalWrite(pwmA, LOW);
+  digitalWrite(pwmB, HIGH);
+  delay(10);
+  // --- Transistor blink 300ms on/off ---
+  if (now - prevTrans >= 300) {
+    transState = !transState;
+    digitalWrite(transPin, transState);
+    prevTrans = now;
+  }
+
+}
