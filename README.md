@@ -104,5 +104,5 @@ Configurable pulse frequency and duration in code.
 
 Demo Video
 
-Watch the project in action on YouTube:
-https://youtube.com/shorts/9oRb7KBpmlI?feature=share, @SafniSaleemsafni
+Watch the project in action :
+https://drive.google.com/file/d/1fwy3NhG2aM_A7V3LZK2k0VW2aplA58Xk/view?usp=drive_link, @SafniSaleemsafni
